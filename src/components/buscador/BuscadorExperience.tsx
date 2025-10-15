@@ -25,7 +25,7 @@ const uiHighlights = [
   {
     title: "Busquedas Inteligentes",
     description:
-      "Busca por CUI directamente y obtén la libreta al instante desde la API institucional.",
+      "Busca por CUI directamente y obtén la libreta al instante.",
     icon: Sparkles,
   },
   {
@@ -94,7 +94,6 @@ export default function BuscadorExperience() {
     setPdfUrl(null);
 
     try {
-      // Usar la API proxy local para evitar problemas de CORS
       const apiUrl = `/api/libreta/${cui.trim()}`;
 
       // Verificar si el recurso existe
@@ -108,7 +107,7 @@ export default function BuscadorExperience() {
       } else if (response.status === 404) {
         setSearchError("No se encontró libreta para este CUI");
       } else {
-        setSearchError("Error al consultar la API. Intenta nuevamente.");
+        setSearchError("Error al consultar el servidor. Intenta nuevamente.");
       }
     } catch (error) {
       console.error("Error fetching student data:", error);
@@ -170,7 +169,6 @@ export default function BuscadorExperience() {
         );
 
         try {
-          // Usar la API proxy local
           const apiUrl = `/api/libreta/${job.cui}`;
           const response = await fetch(apiUrl);
 
@@ -243,9 +241,8 @@ export default function BuscadorExperience() {
               Localiza, visualiza y descarga libretas al instante.
             </h1>
             <p className="text-slate-300">
-              Conectado a la API institucional de UNSA. Busca por CUI, visualiza
-              la libreta en tiempo real y descarga individual o masivamente
-              mediante archivos CSV.
+              Busca por CUI, visualiza la libreta en tiempo real y descarga 
+              individual o masivamente mediante archivos CSV.
             </p>
           </div>
           <div className="glass-panel flex w-full max-w-sm flex-col gap-3 px-6 py-5 text-sm text-slate-200">
@@ -286,7 +283,7 @@ export default function BuscadorExperience() {
                   Motor de búsqueda
                 </h2>
                 <p className="text-sm text-slate-400">
-                  Integración directa con la API de UNSA.
+                  Sistema de consulta de libretas.
                 </p>
               </div>
             </div>
@@ -309,27 +306,6 @@ export default function BuscadorExperience() {
                   </div>
                 </article>
               ))}
-            </div>
-            <div className="rounded-2xl border border-white/5 bg-slate-800/40 p-5 text-sm text-slate-300">
-              <p className="font-medium text-slate-200">Endpoint de la API</p>
-              <p className="mt-2 break-all font-mono text-xs text-slate-400">
-                https://ouis.unsa.edu.pe/tramited/ventanilla/find-student/
-                {"{cui}"}
-              </p>
-              <ul className="mt-4 space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-cyan-300" />
-                  <span className="text-xs">
-                    Devuelve el PDF directamente sin redirecciones
-                  </span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="mt-1 inline-flex h-2 w-2 rounded-full bg-emerald-300" />
-                  <span className="text-xs">
-                    Formato CSV para lotes: una columna con CUIs (8 dígitos)
-                  </span>
-                </li>
-              </ul>
             </div>
           </aside>
 
@@ -461,10 +437,6 @@ export default function BuscadorExperience() {
                           <span className="inline-flex items-center gap-2 rounded-full bg-slate-800/35 px-3 py-1 text-slate-200">
                             <Clock3 className="h-4 w-4 text-cyan-300" />{" "}
                             Respuesta instantánea
-                          </span>
-                          <span className="inline-flex items-center gap-2 rounded-full bg-slate-800/35 px-3 py-1 text-slate-200">
-                            <Layers className="h-4 w-4 text-emerald-300" /> API
-                            oficial UNSA
                           </span>
                         </div>
                       </div>
