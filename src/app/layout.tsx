@@ -27,9 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="bg-slate-950">
+    <html lang="es" className="bg-slate-900">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-900 text-slate-100 selection:bg-cyan-500/25 selection:text-cyan-100`}
         suppressHydrationWarning
       >
         <div className="noise-layer" aria-hidden />
