@@ -112,9 +112,7 @@ export default function BuscadorExperience() {
       }
     } catch (error) {
       console.error("Error fetching student data:", error);
-      setSearchError(
-        "Error de conexión. Verifica tu red e intenta de nuevo."
-      );
+      setSearchError("Error de conexión. Verifica tu red e intenta de nuevo.");
     } finally {
       setIsSearching(false);
     }
@@ -226,7 +224,9 @@ export default function BuscadorExperience() {
     setBatchJobs([]);
   };
 
-  const completedJobs = batchJobs.filter((j) => j.status === "completed").length;
+  const completedJobs = batchJobs.filter(
+    (j) => j.status === "completed"
+  ).length;
   const errorJobs = batchJobs.filter((j) => j.status === "error").length;
 
   return (
@@ -311,9 +311,7 @@ export default function BuscadorExperience() {
               ))}
             </div>
             <div className="rounded-2xl border border-white/5 bg-slate-800/40 p-5 text-sm text-slate-300">
-              <p className="font-medium text-slate-200">
-                Endpoint de la API
-              </p>
+              <p className="font-medium text-slate-200">Endpoint de la API</p>
               <p className="mt-2 break-all font-mono text-xs text-slate-400">
                 https://ouis.unsa.edu.pe/tramited/ventanilla/find-student/
                 {"{cui}"}
@@ -432,8 +430,7 @@ export default function BuscadorExperience() {
                               <button
                                 type="submit"
                                 disabled={
-                                  isSearching ||
-                                  manualInput.trim().length !== 8
+                                  isSearching || manualInput.trim().length !== 8
                                 }
                                 className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-cyan-400/95 px-6 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-400/30 transition hover:bg-cyan-300 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
@@ -462,8 +459,8 @@ export default function BuscadorExperience() {
                         )}
                         <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-slate-500">
                           <span className="inline-flex items-center gap-2 rounded-full bg-slate-800/35 px-3 py-1 text-slate-200">
-                            <Clock3 className="h-4 w-4 text-cyan-300" /> Respuesta
-                            instantánea
+                            <Clock3 className="h-4 w-4 text-cyan-300" />{" "}
+                            Respuesta instantánea
                           </span>
                           <span className="inline-flex items-center gap-2 rounded-full bg-slate-800/35 px-3 py-1 text-slate-200">
                             <Layers className="h-4 w-4 text-emerald-300" /> API
@@ -521,7 +518,10 @@ export default function BuscadorExperience() {
                         </object>
                       </div>
                       <p className="mt-3 text-[11px] text-slate-500">
-                        CUI: <span className="font-mono text-slate-300">{selectedCui}</span>
+                        CUI:{" "}
+                        <span className="font-mono text-slate-300">
+                          {selectedCui}
+                        </span>
                       </p>
                     </div>
                     <div className="flex flex-col gap-3 text-xs text-slate-400">
@@ -539,7 +539,8 @@ export default function BuscadorExperience() {
                           rel="noreferrer"
                           className="inline-flex items-center gap-2 rounded-xl bg-slate-900/45 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-slate-800/80"
                         >
-                          <ArrowRight className="h-4 w-4" /> Abrir en nueva pestaña
+                          <ArrowRight className="h-4 w-4" /> Abrir en nueva
+                          pestaña
                         </a>
                       </div>
                     </div>
@@ -549,7 +550,8 @@ export default function BuscadorExperience() {
                     <div className="flex flex-col items-center gap-3">
                       <FileText className="h-12 w-12 text-slate-600" />
                       <p>
-                        Ingresa un CUI en el buscador para mostrar la vista previa
+                        Ingresa un CUI en el buscador para mostrar la vista
+                        previa
                       </p>
                     </div>
                   </div>
@@ -674,7 +676,7 @@ export default function BuscadorExperience() {
                       Formato del CSV:
                     </p>
                     <pre className="mt-2 overflow-x-auto rounded bg-slate-950/50 p-2 font-mono text-[11px] text-slate-400">
-{`CUI
+                      {`CUI
 20233489
 20228741
 20215620`}
