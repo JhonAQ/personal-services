@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { cui: string } }
+  { params }: { params: Promise<{ cui: string }> }
 ) {
-  const { cui } = params;
+  const { cui } = await params;
 
   // Validar que el CUI tenga 8 dígitos
   if (!cui || !/^\d{8}$/.test(cui)) {
@@ -61,9 +61,9 @@ export async function GET(
 // También soportar HEAD para verificar existencia
 export async function HEAD(
   request: NextRequest,
-  { params }: { params: { cui: string } }
+  { params }: { params: Promise<{ cui: string }> }
 ) {
-  const { cui } = params;
+  const { cui } = await params;
 
   if (!cui || !/^\d{8}$/.test(cui)) {
     return new NextResponse(null, { status: 400 });
