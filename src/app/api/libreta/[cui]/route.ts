@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  checkRateLimit,
+  getClientIp,
+  validateAccessToken,
+} from "@/lib/security";
 
 export async function GET(
   request: NextRequest,
@@ -11,6 +16,51 @@ export async function GET(
     return NextResponse.json(
       { error: "CUI inválido. Debe tener 8 dígitos." },
       { status: 400 }
+    );
+  }
+
+  // Obtener token de los query params
+  const { searchParams } = new URL(request.url);
+  const token = searchParams.get("token");
+
+  if (!token) {
+    return NextResponse.json(
+      { error: "Token de acceso requerido" },
+      { status: 401 }
+    );
+  }
+
+  // Validar token
+  const tokenValidation = validateAccessToken(token, cui);
+  if (!tokenValidation.valid) {
+    console.error("Token validation failed:", tokenValidation.error, {
+      token,
+      cui,
+    });
+    return NextResponse.json(
+      { error: tokenValidation.error },
+      { status: 403 }
+    );
+  }
+
+  // Rate limiting adicional por IP
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(`download:${clientIp}`, 15, 60000);
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      {
+        error: "Límite de descargas excedido. Intenta más tarde.",
+        retryAfter: Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+      },
+      {
+        status: 429,
+        headers: {
+          "Retry-After": Math.ceil(
+            (rateLimit.resetAt - Date.now()) / 1000
+          ).toString(),
+        },
+      }
     );
   }
 
@@ -67,6 +117,33 @@ export async function HEAD(
 
   if (!cui || !/^\d{8}$/.test(cui)) {
     return new NextResponse(null, { status: 400 });
+  }
+
+  // HEAD también requiere token para evitar enumeración
+  const { searchParams } = new URL(request.url);
+  const token = searchParams.get("token");
+
+  console.log("HEAD request received:", { cui, token });
+
+  if (!token) {
+    console.error("HEAD: Token missing");
+    return new NextResponse(null, { status: 401 });
+  }
+
+  const tokenValidation = validateAccessToken(token, cui);
+  if (!tokenValidation.valid) {
+    console.error("HEAD: Token validation failed:", tokenValidation.error);
+    return new NextResponse(null, { status: 403 });
+  }
+
+  console.log("HEAD: Token validated successfully");
+
+  // Rate limiting
+  const clientIp = getClientIp(request);
+  const rateLimit = checkRateLimit(`check:${clientIp}`, 30, 60000);
+
+  if (!rateLimit.allowed) {
+    return new NextResponse(null, { status: 429 });
   }
 
   try {

@@ -93,9 +93,30 @@ export default function BuscadorExperience() {
     setPdfUrl(null);
 
     try {
-      const apiUrl = `/api/libreta/${cui.trim()}`;
+      // Paso 1: Solicitar token de acceso
+      const tokenResponse = await fetch("/api/auth/token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cui: cui.trim() }),
+      });
 
-      // Verificar si el recurso existe
+      if (!tokenResponse.ok) {
+        if (tokenResponse.status === 429) {
+          setSearchError(
+            "Demasiadas solicitudes. Por favor espera un momento."
+          );
+        } else {
+          setSearchError("Error al generar token de acceso");
+        }
+        return;
+      }
+
+      const { token } = await tokenResponse.json();
+
+      // Paso 2: Verificar si el recurso existe con el token
+      const apiUrl = `/api/libreta/${cui.trim()}?token=${token}`;
       const response = await fetch(apiUrl, {
         method: "HEAD",
       });
@@ -105,6 +126,8 @@ export default function BuscadorExperience() {
         setPdfUrl(apiUrl);
       } else if (response.status === 404) {
         setSearchError("No se encontró libreta para este CUI");
+      } else if (response.status === 429) {
+        setSearchError("Límite de consultas excedido. Intenta más tarde.");
       } else {
         setSearchError("Error al consultar el servidor. Intenta nuevamente.");
       }
@@ -168,7 +191,23 @@ export default function BuscadorExperience() {
         );
 
         try {
-          const apiUrl = `/api/libreta/${job.cui}`;
+          // Solicitar token para cada descarga
+          const tokenResponse = await fetch("/api/auth/token", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ cui: job.cui }),
+          });
+
+          if (!tokenResponse.ok) {
+            throw new Error("Error al generar token");
+          }
+
+          const { token } = await tokenResponse.json();
+
+          // Descargar con token
+          const apiUrl = `/api/libreta/${job.cui}?token=${token}`;
           const response = await fetch(apiUrl);
 
           if (response.ok) {
