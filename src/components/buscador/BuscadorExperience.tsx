@@ -24,8 +24,7 @@ import {
 const uiHighlights = [
   {
     title: "Busquedas Inteligentes",
-    description:
-      "Busca por CUI directamente y obtén la libreta al instante.",
+    description: "Busca por CUI directamente y obtén la libreta al instante.",
     icon: Sparkles,
   },
   {
@@ -241,7 +240,7 @@ export default function BuscadorExperience() {
               Localiza, visualiza y descarga libretas al instante.
             </h1>
             <p className="text-slate-300">
-              Busca por CUI, visualiza la libreta en tiempo real y descarga 
+              Busca por CUI, visualiza la libreta en tiempo real y descarga
               individual o masivamente mediante archivos CSV.
             </p>
           </div>
@@ -323,8 +322,7 @@ export default function BuscadorExperience() {
                   {searchOptions.map((option, index) => (
                     <Tab key={option.key} className="focus:outline-none">
                       {({ selected }: { selected: boolean }) => (
-                        <motion.button
-                          type="button"
+                        <motion.div
                           className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition-colors ${
                             selected
                               ? "bg-slate-100/10 text-slate-50 shadow-lg shadow-cyan-500/15"
@@ -356,7 +354,7 @@ export default function BuscadorExperience() {
                               </motion.span>
                             )}
                           </AnimatePresence>
-                        </motion.button>
+                        </motion.div>
                       )}
                     </Tab>
                   ))}
