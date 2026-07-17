@@ -3,6 +3,8 @@
 import { type ChangeEvent, useRef, useState } from "react";
 import { Tab } from "@headlessui/react";
 import { AnimatePresence, motion } from "framer-motion";
+import type { Estudiante } from "@/types/estudiante";
+import BuscadorPersona from "./BuscadorPersona";
 import {
   AlertCircle,
   ArrowRight,
@@ -137,6 +139,13 @@ export default function BuscadorExperience() {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleSelectPersona = (persona: Estudiante) => {
+    setSearchError(null);
+    setPdfUrl(null);
+    setManualInput(persona.cui);
+    handleSearchByCui(persona.cui);
   };
 
   const handleDownloadPdf = () => {
@@ -409,15 +418,11 @@ export default function BuscadorExperience() {
                           {option.description}
                         </p>
                         {option.key === "nombre" || option.key === "dni" ? (
-                          <div className="mt-3">
-                            <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4 text-sm text-amber-200">
-                              <p className="flex items-center gap-2">
-                                <AlertCircle className="h-4 w-4" />
-                                Función en desarrollo - Base de datos en
-                                construcción
-                              </p>
-                            </div>
-                          </div>
+                          <BuscadorPersona
+                            mode={option.key}
+                            placeholder={option.placeholder}
+                            onSelect={handleSelectPersona}
+                          />
                         ) : (
                           <form
                             className="mt-3 flex flex-col gap-4"
