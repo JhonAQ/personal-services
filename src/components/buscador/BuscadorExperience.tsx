@@ -49,7 +49,7 @@ const searchOptions = [
     title: "Por CUI",
     description:
       "Ingresa el codigo universitario para acceder directamente a la libreta.",
-    placeholder: "Ej. 20233489",
+    placeholder: "20201234",
   },
   {
     key: "nombre",
@@ -357,7 +357,7 @@ export default function BuscadorExperience() {
           </aside>
 
           <main className="flex flex-col gap-6">
-            <section className="glass-panel overflow-hidden p-2">
+            <section className="glass-panel overflow-visible p-2">
               <Tab.Group
                 selectedIndex={modeIndex}
                 onChange={(index: number) => {
