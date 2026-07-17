@@ -7,6 +7,7 @@ import {
   useState,
   type KeyboardEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { AlertCircle, Loader2, Search, User } from "lucide-react";
 import type { Estudiante } from "@/types/estudiante";
 
@@ -31,9 +32,11 @@ export default function BuscadorPersona({
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,6 +52,31 @@ export default function BuscadorPersona({
     },
     [onSelect]
   );
+
+  // Calcular posición del dropdown respecto al viewport (portal fixed)
+  useEffect(() => {
+    if (!showSuggestions || !inputRef.current) return;
+
+    const updatePosition = () => {
+      const input = inputRef.current;
+      if (!input) return;
+      const rect = input.getBoundingClientRect();
+      setDropdownPos({
+        top: rect.bottom + window.scrollY + 8,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    };
+
+    updatePosition();
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+    };
+  }, [showSuggestions, query]);
 
   // Debounce + búsqueda
   useEffect(() => {
@@ -125,10 +153,13 @@ export default function BuscadorPersona({
   // Cerrar sugerencias al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
+      const target = event.target as Node;
+      const insideInput =
+        containerRef.current && containerRef.current.contains(target);
+      const insideDropdown =
+        dropdownRef.current && dropdownRef.current.contains(target);
+
+      if (!insideInput && !insideDropdown) {
         setShowSuggestions(false);
       }
     }
@@ -164,6 +195,60 @@ export default function BuscadorPersona({
     }
   };
 
+  const dropdown = (
+    <div
+      ref={dropdownRef}
+      id="sugerencias-lista"
+      role="listbox"
+      style={{
+        top: dropdownPos.top,
+        left: dropdownPos.left,
+        width: dropdownPos.width,
+      }}
+      className="fixed z-[100] max-h-72 overflow-y-auto overflow-x-hidden rounded-2xl border border-white/10 bg-slate-900/95 py-2 shadow-2xl shadow-black/40 backdrop-blur"
+    >
+      {suggestions.length === 0 && !isLoading && (
+        <div className="px-4 py-3 text-sm text-slate-400">
+          No se encontraron resultados.
+        </div>
+      )}
+
+      {suggestions.map((persona, index) => {
+        const nombre = formatNombre(persona);
+        const isActive = index === activeIndex;
+
+        return (
+          <button
+            key={persona.id}
+            type="button"
+            role="option"
+            aria-selected={isActive}
+            onMouseEnter={() => setActiveIndex(index)}
+            onClick={() => handleSelect(persona)}
+            className={`flex w-full items-start gap-3 px-4 py-3 text-left transition ${
+              isActive
+                ? "bg-cyan-500/15 text-cyan-50"
+                : "text-slate-200 hover:bg-slate-800/60"
+            }`}
+          >
+            <div className="mt-0.5 rounded-lg bg-slate-800/70 p-1.5">
+              <User className="h-4 w-4 text-cyan-300" />
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-medium">{nombre}</span>
+              <span className="text-xs text-slate-400">
+                DNI: {persona.dni} · CUI: {persona.cui}
+              </span>
+              {persona.escuela && (
+                <span className="text-xs text-slate-500">{persona.escuela}</span>
+              )}
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div ref={containerRef} className="relative mt-3 flex flex-col gap-4">
       <div className="relative">
@@ -195,53 +280,7 @@ export default function BuscadorPersona({
         )}
       </div>
 
-      {showSuggestions && (
-        <div
-          id="sugerencias-lista"
-          role="listbox"
-          className="absolute top-full z-20 mt-2 w-full overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 py-2 shadow-2xl shadow-black/40 backdrop-blur"
-        >
-          {suggestions.length === 0 && !isLoading && (
-            <div className="px-4 py-3 text-sm text-slate-400">
-              No se encontraron resultados.
-            </div>
-          )}
-
-          {suggestions.map((persona, index) => {
-            const nombre = formatNombre(persona);
-            const isActive = index === activeIndex;
-
-            return (
-              <button
-                key={persona.id}
-                type="button"
-                role="option"
-                aria-selected={isActive}
-                onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => handleSelect(persona)}
-                className={`flex w-full items-start gap-3 px-4 py-3 text-left transition ${
-                  isActive
-                    ? "bg-cyan-500/15 text-cyan-50"
-                    : "text-slate-200 hover:bg-slate-800/60"
-                }`}
-              >
-                <div className="mt-0.5 rounded-lg bg-slate-800/70 p-1.5">
-                  <User className="h-4 w-4 text-cyan-300" />
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">{nombre}</span>
-                  <span className="text-xs text-slate-400">
-                    DNI: {persona.dni} · CUI: {persona.cui}
-                  </span>
-                  {persona.escuela && (
-                    <span className="text-xs text-slate-500">{persona.escuela}</span>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+      {showSuggestions && createPortal(dropdown, document.body)}
 
       {error && (
         <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-3 text-sm text-red-200">
